@@ -1,26 +1,34 @@
 #ifndef RESTAURANTE_H
 #define RESTAURANTE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
 #include "mesa.h"
-#include "pilha.h"
-#include "fila.h"
 
-struct restaurante typedef Restaurante;
+typedef struct restaurante {
+    int nMesas, nLinhas, nColunas;
 
-Restaurante *abrirRestaurante(int linhas, int colunas);
+    int lugares;
 
-void chegarGrupo(Restaurante *r);
-void liberarMesa(Restaurante *r);
+    int proxComanda;
+    int proxSenha;
 
-void desistirFila(Restaurante *r);
-void reporPratos(Restaurante *r);
+    Mesa **mesas;
 
-void imprimirMesa(Restaurante *r);
-void imprimirTodasMesas(Restaurante *r);
+} Restaurante;
 
-void imprimirFila(Restaurante *r);
-void imprimirPilha(Restaurante *r);
+Restaurante *CriaRestaurante(void);
 
-void liberarRestaurante(Restaurante *r);
+void liberaRestaurante(Restaurante *restaurante);
+
+void encontrarMesa(Restaurante * restaurante);
+
+void liberarMesa(Restaurante * restaurante);
+
+void imprimeMesa(Restaurante * restaurante);
+
+void imprimeTodasMesas(Restaurante * restaurante);
 
 #endif

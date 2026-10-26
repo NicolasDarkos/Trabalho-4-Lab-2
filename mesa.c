@@ -1,19 +1,22 @@
 #include "restaurante.h"
 #include "mesa.h"
 
-struct Mesa
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>    
+
+void ocuparMesa(Mesa *mesa, int pessoas, int comanda)
 {
-    int lugaresOcu;
+    mesa->livre = false;
+    mesa->lugaresOcu = pessoas;
+    mesa->comanda = comanda;
 
-    int numeroMesa;
-    int comanda;
-    bool livre;
+    /*tem que verificar os pratos*/
+}
 
-} typedef mesa;
-
-void ocuparMesa(Restaurante * restaurante)
+void encontrarMesa(Restaurante * restaurante)
 {
-    int nGrupo, grupoPorMesa;
+    int nGrupo = 0;
 
     do
     {
@@ -21,52 +24,33 @@ void ocuparMesa(Restaurante * restaurante)
     scanf("%d", &nGrupo);
     } while (nGrupo <= 0);
     
-    grupoPorMesa = nGrupo;
+    nGrupo = nGrupo;
 
-    int linhaAtual = 0, colunaAtual = 0, comandaAtual = 0;
-
-    do
+    for (int i = 0; i < restaurante->nLinhas && nGrupo > 0; i++)
     {
-        if(restaurante->mesas[linhaAtual][colunaAtual].livre)
+        for (int j = 0; j < restaurante->nColunas && nGrupo > 0; j++)
         {
-            restaurante->mesas[linhaAtual][colunaAtual].comanda = comandaAtual+1;
+            Mesa *m = &restaurante->mesas[i][j];
 
-            if(grupoPorMesa > restaurante->lugares)
+            if (m->livre)
             {
-                restaurante->mesas[linhaAtual][colunaAtual].lugaresOcu = restaurante->lugares;
+                int sentam = (nGrupo > restaurante->lugares) ? restaurante->lugares : nGrupo;
+
+                restaurante->proxComanda++;
+
+                ocuparMesa(m, sentam, restaurante->proxComanda);
+             
+                nGrupo -= sentam;
+
+                printf("%d pessoa(s) na mesa %d (comanda %d)\n",
+                       sentam, m->numeroMesa, m->comanda);
             }
-            else
-            {
-                restaurante->mesas[linhaAtual][colunaAtual].lugaresOcu = grupoPorMesa;
-            }
-
-            restaurante->mesas[linhaAtual][colunaAtual].livre = false;
-
-            /*tem que colocar os pratos tbm*/
-
-            grupoPorMesa -= restaurante->lugares;        
         }
+    }
 
-        comandaAtual = restaurante->mesas[linhaAtual][colunaAtual].comanda;
-        
-        colunaAtual++;
-
-        if(colunaAtual >= restaurante->nColunas)
-        {
-            linhaAtual++;
-            colunaAtual = 0;
-        }
-
-        if(linhaAtual >= restaurante->nLinhas)
-        {
-            break;
-        }
-
-    }while(grupoPorMesa > 0);
-
-    if(grupoPorMesa > 0)
+    if(nGrupo > 0)
     {
-        adicionarNaFila(grupoPorMesa);
+        adicionarNaFila(nGrupo);
     }
 }
 
@@ -81,15 +65,16 @@ void liberarMesa(Restaurante * restaurante)
 
         printf("Digite qual coluna a mesa que sera liberada pertence: ");
         scanf("%d", &colunaLibera);
-    } while (linhaLibera >= restaurante->nLinhas && colunaLibera >= restaurante->nColunas);
-
+    } while (linhaLibera >= restaurante->nLinhas || linhaLibera < 0 || colunaLibera >= restaurante->nColunas || colunaLibera < 0);
+    
     if(restaurante->mesas[linhaLibera][colunaLibera].livre)
     {
-        printf("A mesa já esta livre");
+        printf("A mesa já esta livre\n");
         return;
     }
 
     restaurante->mesas[linhaLibera][colunaLibera].lugaresOcu = 0;
+    restaurante->mesas[linhaLibera][colunaLibera].comanda = 0;
 
     /*tem que repor os pratos tbm*/
 
@@ -98,19 +83,39 @@ void liberarMesa(Restaurante * restaurante)
 
 void imprimeMesa(Restaurante * restaurante)
 {
-    int linhaDesejada, colunaDesejada;
-    
-    do
+    int nMesa;
+
+    Mesa * mesaPesquisa = NULL;
+
+    printf("Digite o numero da mesa desejada: ");
+    scanf("%d", &nMesa);
+
+    for(int i = 0; i < restaurante->nLinhas; i++)
     {
-        printf("Digite qual linha a mesa que desejada pertence: ");
-        scanf("%d", &linhaDesejada);
+        for(int j = 0; j < restaurante->nColunas; j++)
+        {
+            if(restaurante->mesas[i][j].numeroMesa == nMesa)
+            {
+                mesaPesquisa = &restaurante->mesas[i][j];
+            }
+        }
+    }
 
-        printf("Digite qual coluna a mesa que desejada pertence: ");
-        scanf("%d", &colunaDesejada);
-    } while (linhaDesejada >= restaurante->nLinhas && colunaDesejada >= restaurante->nColunas);
+    if(mesaPesquisa == NULL)
+    {
+        printf("\nMesa nao encontrada\n");
+        return;
+    }
 
-    printf("Mesa numero %d: ocupada por %d pessoas", 
-            restaurante->mesas[linhaDesejada][colunaDesejada].numeroMesa, restaurante->mesas[linhaDesejada][colunaDesejada].lugaresOcu);
+    if(mesaPesquisa->livre)
+    {
+        printf("\nMesa numero %d: livre\n", mesaPesquisa->numeroMesa);
+    }
+    else
+    {
+        printf("\nMesa numero %d: ocupada por %d pessoas\n", mesaPesquisa->numeroMesa, mesaPesquisa->lugaresOcu);
+    }
+    
 }
 
 void imprimeTodasMesas(Restaurante * restaurante)
@@ -119,8 +124,15 @@ void imprimeTodasMesas(Restaurante * restaurante)
     {
         for(int j = 0; j < restaurante->nColunas; j++)
         {
-            printf("\nMesa numero %d: ocupada por %d pessoas", 
-                restaurante->mesas[i][j].numeroMesa, restaurante->mesas[i][j].lugaresOcu);
+            if(restaurante->mesas[i][j].livre)
+            {
+                printf("\nMesa numero %d: livre", restaurante->mesas[i][j].numeroMesa);
+            }
+            else
+            {
+                printf("\nMesa numero %d: ocupada por %d pessoas", 
+                    restaurante->mesas[i][j].numeroMesa, restaurante->mesas[i][j].lugaresOcu);
+            }
         }
     }
 }

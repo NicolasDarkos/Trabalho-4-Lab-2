@@ -1,34 +1,46 @@
 #include "mesa.h"
 #include "restaurante.h"
 
-struct restaurante {
-    int nMesas, nLinhas, nColunas;
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-    int proximaComanda;
-    int proximaSenha;
-    
-    Mesa **mesas;
-    Pilha *pratos;
-    Fila *espera;
-
-} typedef Restaurante;
-
-
-Restaurante * CriaRestaurante()
+Restaurante * CriaRestaurante(void)
 {
     int linhas, colunas, nMesa = 0;
 
-    printf("Digite o numero de linhas: ");
-    scanf("%d", &linhas);
+    do
+    {
+        printf("Digite o numero de linhas: ");
+        scanf("%d", &linhas);
+    } while (linhas <= 0);
 
-    printf("Digite o numero de colunas: ");   
-    scanf("%d", &colunas);
+    do
+    {
+        printf("Digite o numero de colunas: ");
+        scanf("%d", &colunas);
+    } while (colunas <= 0);
 
-    mesa ** mesas = (mesa**) malloc(sizeof(mesa*)*linhas);
+    Mesa ** mesas = (Mesa**) malloc(sizeof(Mesa*)*linhas);
+
+    if(mesas == NULL)
+    {
+        return NULL;
+    }
 
     for(int i = 0; i < linhas; i++)
     {
-        mesas[i] = (mesa*) malloc(sizeof(mesa)*colunas);
+        mesas[i] = (Mesa*) malloc(sizeof(Mesa)*colunas);
+
+        if(mesas[i] == NULL)
+        {
+            for(int k = 0; k < i; k++)
+            {
+                free(mesas[k]);
+            }
+            free(mesas);
+            return NULL;
+        }
     }
 
     for(int i = 0; i < linhas; i++)
@@ -36,13 +48,24 @@ Restaurante * CriaRestaurante()
         for(int j = 0; j < colunas; j++)
         {
             nMesa++;
-            mesas[i][j].numero = nMesa;
+            mesas[i][j].numeroMesa = nMesa;
             mesas[i][j].lugaresOcu = 0;
-            mesas[i][j].livre = true;            
+            mesas[i][j].livre = true;  
+            mesas[i][j].comanda = 0;          
         }
     }
 
     Restaurante * restauranteC = (Restaurante*) malloc(sizeof(Restaurante));
+
+    if(restauranteC == NULL)
+    {
+        for(int i = 0; i < linhas; i++)
+        {
+            free(mesas[i]);
+        }
+        free(mesas);
+        return NULL;
+    }
     
     restauranteC->mesas = mesas;
 
@@ -51,7 +74,26 @@ Restaurante * CriaRestaurante()
 
     restauranteC->lugares = 4;
 
-    restauranteC->nMesa = linhas * colunas;
+    restauranteC->nMesas = linhas * colunas;
+
+    restauranteC->proxSenha = 0;
+    restauranteC->proxComanda = 0;
 
     return restauranteC;
+}
+
+void liberaRestaurante(Restaurante *restaurante)
+{
+    if(restaurante == NULL)
+    {
+        return;
+    }
+
+    for(int i = 0; i < restaurante->nLinhas; i++)
+    {
+        free(restaurante->mesas[i]);
+    }
+
+    free(restaurante->mesas);
+    free(restaurante);
 }

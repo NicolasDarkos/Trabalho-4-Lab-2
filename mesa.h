@@ -1,9 +1,20 @@
-struct Mesa typedef mesa;
+#ifndef MESA_H
+#define MESA_H
 
-void ocuparMesa(Restaurante * restaurante);
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
-void liberarMesa(Restaurante * restaurante);
+typedef struct mesa
+{
+    int lugaresOcu;
 
-void imprimeMesa(Restaurante * restaurante);
+    int numeroMesa;
+    int comanda;
+    bool livre;
 
-void imprimeTodasMesas(Restaurante * restaurante);
+} Mesa;
+
+void ocuparMesa(Mesa *mesa, int pessoas, int comanda);
+
+#endif
