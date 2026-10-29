@@ -5,9 +5,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "prato.h"
 #include "mesa.h"
 
-typedef struct restaurante {
+typedef struct restaurante
+{
     int nMesas, nLinhas, nColunas;
 
     int lugares;
@@ -16,6 +18,7 @@ typedef struct restaurante {
     int proxSenha;
 
     Mesa **mesas;
+    Pilha *pilha;
 
 } Restaurante;
 
@@ -23,12 +26,12 @@ Restaurante *CriaRestaurante(void);
 
 void liberaRestaurante(Restaurante *restaurante);
 
-void encontrarMesa(Restaurante * restaurante);
+void encontrarMesa(Restaurante *restaurante);
 
-void liberarMesa(Restaurante * restaurante);
+void liberarMesa(Restaurante *restaurante);
 
-void imprimeMesa(Restaurante * restaurante);
+void imprimeMesa(Restaurante *restaurante);
 
-void imprimeTodasMesas(Restaurante * restaurante);
+void imprimeTodasMesas(Restaurante *restaurante);
 
 #endif

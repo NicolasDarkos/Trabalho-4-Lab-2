@@ -1,3 +1,5 @@
+
+#include "prato.h"
 #include "mesa.h"
 #include "restaurante.h"
 
@@ -5,7 +7,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-Restaurante * CriaRestaurante(void)
+Restaurante *CriaRestaurante(void)
 {
     int linhas, colunas, nMesa = 0;
 
@@ -21,20 +23,20 @@ Restaurante * CriaRestaurante(void)
         scanf("%d", &colunas);
     } while (colunas <= 0);
 
-    Mesa ** mesas = (Mesa**) malloc(sizeof(Mesa*)*linhas);
+    Mesa **mesas = (Mesa **)malloc(sizeof(Mesa *) * linhas);
 
-    if(mesas == NULL)
+    if (mesas == NULL)
     {
         return NULL;
     }
 
-    for(int i = 0; i < linhas; i++)
+    for (int i = 0; i < linhas; i++)
     {
-        mesas[i] = (Mesa*) malloc(sizeof(Mesa)*colunas);
+        mesas[i] = (Mesa *)malloc(sizeof(Mesa) * colunas);
 
-        if(mesas[i] == NULL)
+        if (mesas[i] == NULL)
         {
-            for(int k = 0; k < i; k++)
+            for (int k = 0; k < i; k++)
             {
                 free(mesas[k]);
             }
@@ -43,30 +45,30 @@ Restaurante * CriaRestaurante(void)
         }
     }
 
-    for(int i = 0; i < linhas; i++)
+    for (int i = 0; i < linhas; i++)
     {
-        for(int j = 0; j < colunas; j++)
+        for (int j = 0; j < colunas; j++)
         {
             nMesa++;
             mesas[i][j].numeroMesa = nMesa;
             mesas[i][j].lugaresOcu = 0;
-            mesas[i][j].livre = true;  
-            mesas[i][j].comanda = 0;          
+            mesas[i][j].livre = true;
+            mesas[i][j].comanda = 0;
         }
     }
 
-    Restaurante * restauranteC = (Restaurante*) malloc(sizeof(Restaurante));
+    Restaurante *restauranteC = (Restaurante *)malloc(sizeof(Restaurante));
 
-    if(restauranteC == NULL)
+    if (restauranteC == NULL)
     {
-        for(int i = 0; i < linhas; i++)
+        for (int i = 0; i < linhas; i++)
         {
             free(mesas[i]);
         }
         free(mesas);
         return NULL;
     }
-    
+
     restauranteC->mesas = mesas;
 
     restauranteC->nLinhas = linhas;
@@ -79,17 +81,20 @@ Restaurante * CriaRestaurante(void)
     restauranteC->proxSenha = 0;
     restauranteC->proxComanda = 0;
 
+    int max = nMesa * 4;
+    restauranteC->pilha = CriarPilha(max);
+
     return restauranteC;
 }
 
 void liberaRestaurante(Restaurante *restaurante)
 {
-    if(restaurante == NULL)
+    if (restaurante == NULL)
     {
         return;
     }
 
-    for(int i = 0; i < restaurante->nLinhas; i++)
+    for (int i = 0; i < restaurante->nLinhas; i++)
     {
         free(restaurante->mesas[i]);
     }
