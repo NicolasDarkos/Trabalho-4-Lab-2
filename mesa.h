@@ -15,6 +15,6 @@ typedef struct mesa
 
 } Mesa;
 
-void ocuparMesa(Mesa *mesa, int pessoas, int comanda);
+void ocuparMesa(Restaurante *restaurante, Mesa *mesa, int pessoas, int comanda);
 
 #endif
