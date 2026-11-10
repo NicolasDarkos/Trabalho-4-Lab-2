@@ -1,16 +1,15 @@
 #ifndef RESTAURANTE_H
 #define RESTAURANTE_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #include "prato.h"
 #include "mesa.h"
+#include "filaDeEspera.h"
 
 typedef struct restaurante
 {
-    int nMesas, nLinhas, nColunas;
+    int nMesas;
+    int nLinhas;
+    int nColunas;
 
     int lugares;
 
@@ -19,19 +18,19 @@ typedef struct restaurante
 
     Mesa **mesas;
     Pilha *pilha;
-
+    Fila *fila;
 } Restaurante;
 
-Restaurante *CriaRestaurante(void);
+Restaurante *criarRestaurante(void);
 
-void liberaRestaurante(Restaurante *restaurante);
+void liberarRestaurante(Restaurante *restaurante);
 
 void encontrarMesa(Restaurante *restaurante);
 
 void liberarMesa(Restaurante *restaurante);
 
-void imprimeMesa(Restaurante *restaurante);
+void imprimirMesa(Restaurante *restaurante);
 
-void imprimeTodasMesas(Restaurante *restaurante);
+void imprimirTodasMesas(Restaurante *restaurante);
 
 #endif

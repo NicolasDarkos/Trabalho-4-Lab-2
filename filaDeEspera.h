@@ -1,59 +1,44 @@
+#ifndef FILADEESPERA_H
+#define FILADEESPERA_H
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
-/*
-Estrutura que representa um grupo de clientes aguardando atendimento.
-*/
-typedef struct grupo {
+typedef struct grupo
+{
     int senha;
-    int qtd_pessoas;
+    int qtdPessoas;
     struct grupo *prox;
-} Grupo, No;
+} Grupo;
 
-/*
-Estrutura de controle (descritor) da fila de espera.
-*/
-typedef struct fila {
+typedef struct fila
+{
     Grupo *inicio;
     Grupo *fim;
-    int total_grupos;
-    int total_pessoas;
+    int totalGrupos;
+    int totalPessoas;
 } Fila;
 
-/*
-Prototipos das operacoes da Fila de Espera
-*/
+Fila *criarFila(void);
 
-// Inicializa e aloca dinamicamente uma nova fila de espera vazia.
-Fila* criar_fila(void);
+int filaVazia(Fila *fila);
 
-// Verifica se a fila de espera esta vazia ou nao alocada.
-int fila_vazia(Fila *f);
+int enfileirar(Fila *fila, int senha, int qtdPessoas);
 
-// Adiciona um novo grupo com sua senha e quantidade de pessoas ao final da fila.
-int enfileirar(Fila *f, int senha, int qtd_pessoas);
+int desenfileirar(Fila *fila, int *senha, int *qtdPessoas);
 
-// Remove o primeiro grupo da fila retornando seus dados (quando totalmente atendido).
-int desenfileirar(Fila *f, int *senha, int *qtd_pessoas);
+int atenderParcialmente(Fila *fila, int pessoasAtendidas);
 
-// Atualiza a quantidade de pessoas do primeiro grupo da fila em caso de atendimento parcial.
-int atender_parcialmente(Fila *f, int pessoas_atendidas);
+int consultarPrimeiro(Fila *fila, int *senha, int *qtdPessoas);
 
-// Permite consultar os dados do primeiro grupo da fila sem desenfileira-lo.
-int consultar_primeiro(Fila *f, int *senha, int *qtd_pessoas);
+int removerPorSenha(Fila *fila, int senha);
 
-// Busca e remove um grupo arbitrario da fila a partir de sua senha (desistencia).
-int remover_por_senha(Fila *f, int senha);
+void obterEstatisticasFila(Fila *fila, int *totalGrupos, int *totalPessoas);
 
-// Calcula e retorna por referencia o total de grupos e o somatorio de pessoas aguardando.
-void obter_estatisticas_fila(Fila *f, int *total_grupos, int *total_pessoas);
+int tamanhoFila(Fila *fila);
 
-// Retorna a quantidade de grupos atualmente na fila.
-int tamanho_fila(Fila *f);
+void imprimirFila(Fila *fila);
 
-// Exibe no terminal o estado visual formatado da fila de espera.
-void imprimir_fila(Fila *f);
+void liberarFila(Fila *fila);
 
-// Libera toda a memoria dinamicamente alocada para os nos e a estrutura da fila.
-void liberar_fila(Fila *f);
+#endif

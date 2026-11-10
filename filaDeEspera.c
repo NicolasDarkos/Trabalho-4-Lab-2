@@ -1,243 +1,287 @@
 #include "filaDeEspera.h"
 
+Fila *criarFila(void)
+{
+    Fila *fila = (Fila *)malloc(sizeof(Fila));
 
-// Inicializa e aloca dinamicamente uma nova fila de espera vazia.
-Fila *criar_fila(void) {
-    Fila *f = (Fila *)malloc(sizeof(Fila));
-    if (f == NULL) {
-        printf("\n| ERRO | Falha na alocacao de memoria para a fila de espera.\n");
+    if (fila == NULL)
+    {
+        printf("[ERRO] Falha na alocacao de memoria para a fila de espera.\n");
         return NULL;
     }
 
-    f->inicio = NULL;
-    f->fim = NULL;
-    f->total_grupos = 0;
-    f->total_pessoas = 0;
+    fila->inicio = NULL;
+    fila->fim = NULL;
+    fila->totalGrupos = 0;
+    fila->totalPessoas = 0;
 
-    return f;
+    return fila;
 }
 
-
-// Verifica se a fila de espera esta vazia ou nao alocada.
-int fila_vazia(Fila *f) {
-    if (f == NULL || f->inicio == NULL) {
+int filaVazia(Fila *fila)
+{
+    if (fila == NULL || fila->inicio == NULL)
+    {
         return 1;
     }
+
     return 0;
 }
 
+int enfileirar(Fila *fila, int senha, int qtdPessoas)
+{
+    Grupo *novo;
 
-// Adiciona um novo grupo com sua senha e quantidade de pessoas ao final da fila.
-int enfileirar(Fila *f, int senha, int qtd_pessoas) {
-    if (f == NULL || qtd_pessoas <= 0) {
+    if (fila == NULL || qtdPessoas <= 0)
+    {
         return 0;
     }
 
-    Grupo *novo = (Grupo *)malloc(sizeof(Grupo));
-    if (novo == NULL) {
-        printf("\n| ERRO | Falha na alocacao de memoria para o grupo da fila.\n");
+    novo = (Grupo *)malloc(sizeof(Grupo));
+
+    if (novo == NULL)
+    {
+        printf("[ERRO] Falha na alocacao de memoria para o grupo da fila.\n");
         return 0;
     }
 
     novo->senha = senha;
-    novo->qtd_pessoas = qtd_pessoas;
+    novo->qtdPessoas = qtdPessoas;
     novo->prox = NULL;
 
-    if (fila_vazia(f)) {
-        f->inicio = novo;
-        f->fim = novo;
-    } else {
-        f->fim->prox = novo;
-        f->fim = novo;
+    if (filaVazia(fila))
+    {
+        fila->inicio = novo;
+        fila->fim = novo;
+    }
+    else
+    {
+        fila->fim->prox = novo;
+        fila->fim = novo;
     }
 
-    f->total_grupos++;
-    f->total_pessoas += qtd_pessoas;
+    fila->totalGrupos++;
+    fila->totalPessoas += qtdPessoas;
 
     return 1;
 }
 
+int desenfileirar(Fila *fila, int *senha, int *qtdPessoas)
+{
+    Grupo *removido;
 
-// Remove o primeiro grupo da fila retornando seus dados quando totalmente atendido.
-int desenfileirar(Fila *f, int *senha, int *qtd_pessoas) {
-    if (fila_vazia(f)) {
+    if (filaVazia(fila))
+    {
         return 0;
     }
 
-    Grupo *removido = f->inicio;
+    removido = fila->inicio;
 
-    if (senha != NULL) {
+    if (senha != NULL)
+    {
         *senha = removido->senha;
     }
-    if (qtd_pessoas != NULL) {
-        *qtd_pessoas = removido->qtd_pessoas;
+    if (qtdPessoas != NULL)
+    {
+        *qtdPessoas = removido->qtdPessoas;
     }
 
-    f->inicio = removido->prox;
-    if (f->inicio == NULL) {
-        f->fim = NULL;
+    fila->inicio = removido->prox;
+    if (fila->inicio == NULL)
+    {
+        fila->fim = NULL;
     }
 
-    f->total_grupos--;
-    f->total_pessoas -= removido->qtd_pessoas;
+    fila->totalGrupos--;
+    fila->totalPessoas -= removido->qtdPessoas;
 
     free(removido);
 
     return 1;
 }
 
+int atenderParcialmente(Fila *fila, int pessoasAtendidas)
+{
+    Grupo *primeiro;
 
-// Atualiza a quantidade de pessoas do primeiro grupo da fila em caso de atendimento parcial.
-int atender_parcialmente(Fila *f, int pessoas_atendidas) {
-    if (fila_vazia(f) || pessoas_atendidas <= 0) {
+    if (filaVazia(fila) || pessoasAtendidas <= 0)
+    {
         return 0;
     }
 
-    Grupo *primeiro = f->inicio;
+    primeiro = fila->inicio;
 
-    if (pessoas_atendidas < primeiro->qtd_pessoas) {
-        primeiro->qtd_pessoas -= pessoas_atendidas;
-        f->total_pessoas -= pessoas_atendidas;
+    if (pessoasAtendidas < primeiro->qtdPessoas)
+    {
+        primeiro->qtdPessoas -= pessoasAtendidas;
+        fila->totalPessoas -= pessoasAtendidas;
         return 1;
-    } else {
-        return desenfileirar(f, NULL, NULL);
     }
+
+    return desenfileirar(fila, NULL, NULL);
 }
 
-
-// Permite consultar os dados do primeiro grupo da fila sem remove-lo.
-int consultar_primeiro(Fila *f, int *senha, int *qtd_pessoas) {
-    if (fila_vazia(f)) {
+int consultarPrimeiro(Fila *fila, int *senha, int *qtdPessoas)
+{
+    if (filaVazia(fila))
+    {
         return 0;
     }
 
-    if (senha != NULL) {
-        *senha = f->inicio->senha;
+    if (senha != NULL)
+    {
+        *senha = fila->inicio->senha;
     }
-    if (qtd_pessoas != NULL) {
-        *qtd_pessoas = f->inicio->qtd_pessoas;
+    if (qtdPessoas != NULL)
+    {
+        *qtdPessoas = fila->inicio->qtdPessoas;
     }
 
     return 1;
 }
 
+int removerPorSenha(Fila *fila, int senha)
+{
+    Grupo *atual;
+    Grupo *anterior = NULL;
 
-// Busca e remove um grupo arbitrario da fila a partir de sua senha em caso de desistencia.
-int remover_por_senha(Fila *f, int senha) {
-    if (fila_vazia(f)) {
+    if (filaVazia(fila))
+    {
         return 0;
     }
 
-    Grupo *atual = f->inicio;
-    Grupo *ant = NULL;
+    atual = fila->inicio;
 
-    while (atual != NULL && atual->senha != senha) {
-        ant = atual;
+    while (atual != NULL && atual->senha != senha)
+    {
+        anterior = atual;
         atual = atual->prox;
     }
 
-    if (atual == NULL) {
+    if (atual == NULL)
+    {
         return 0;
     }
 
-    if (ant == NULL) {
-        f->inicio = atual->prox;
-        if (f->inicio == NULL) {
-            f->fim = NULL;
+    if (anterior == NULL)
+    {
+        fila->inicio = atual->prox;
+        if (fila->inicio == NULL)
+        {
+            fila->fim = NULL;
         }
-    } else {
-        ant->prox = atual->prox;
-        if (atual == f->fim) {
-            f->fim = ant;
+    }
+    else
+    {
+        anterior->prox = atual->prox;
+        if (atual == fila->fim)
+        {
+            fila->fim = anterior;
         }
     }
 
-    f->total_grupos--;
-    f->total_pessoas -= atual->qtd_pessoas;
+    fila->totalGrupos--;
+    fila->totalPessoas -= atual->qtdPessoas;
 
     free(atual);
 
     return 1;
 }
 
-
-// Calcula e retorna por referencia o total de grupos e o somatorio de pessoas aguardando.
-void obter_estatisticas_fila(Fila *f, int *total_grupos, int *total_pessoas) {
+void obterEstatisticasFila(Fila *fila, int *totalGrupos, int *totalPessoas)
+{
     int grupos = 0;
     int pessoas = 0;
+    Grupo *atual;
 
-    if (f != NULL) {
-        Grupo *atual = f->inicio;
-        while (atual != NULL) {
+    if (fila != NULL)
+    {
+        atual = fila->inicio;
+
+        while (atual != NULL)
+        {
             grupos++;
-            pessoas += atual->qtd_pessoas;
+            pessoas += atual->qtdPessoas;
             atual = atual->prox;
         }
     }
 
-    if (total_grupos != NULL) {
-        *total_grupos = grupos;
+    if (totalGrupos != NULL)
+    {
+        *totalGrupos = grupos;
     }
-    if (total_pessoas != NULL) {
-        *total_pessoas = pessoas;
+    if (totalPessoas != NULL)
+    {
+        *totalPessoas = pessoas;
     }
 }
 
-
-// Retorna a quantidade de grupos atualmente na fila.
-int tamanho_fila(Fila *f) {
-    if (fila_vazia(f)) {
+int tamanhoFila(Fila *fila)
+{
+    if (filaVazia(fila))
+    {
         return 0;
     }
-    return f->total_grupos;
+
+    return fila->totalGrupos;
 }
 
+void imprimirFila(Fila *fila)
+{
+    Grupo *atual;
+    int posicao = 1;
+    int grupos, pessoas;
 
-// Exibe no terminal a visualizacao formatada de todos os grupos aguardando na fila de espera.
-void imprimir_fila(Fila *f) {
-    if (fila_vazia(f)) {
-        printf("\n+-------------------------------------------------------------+");
-        printf("\n|                FILA DE ESPERA ESTA VAZIA                    |");
-        printf("\n+-------------------------------------------------------------+\n");
+    printf("\n+--------------------------------------+\n");
+    printf("| %-36s |\n", "FILA DE ESPERA");
+
+    if (filaVazia(fila))
+    {
+        printf("+--------------------------------------+\n");
+    }
+    else
+    {
+        printf("+---------+-------+--------------------+\n");
+        printf("| POSICAO | SENHA | QUANTIDADE PESSOAS |\n");
+        printf("+---------+-------+--------------------+\n");
+
+        atual = fila->inicio;
+
+        while (atual != NULL)
+        {
+            printf("| %-7d | %-5d | %-18d |\n", posicao, atual->senha, atual->qtdPessoas);
+            atual = atual->prox;
+            posicao++;
+        }
+
+        printf("+---------+-------+--------------------+\n");
+    }
+
+    obterEstatisticasFila(fila, &grupos, &pessoas);
+
+    printf("| Grupos aguardando: %-17d |\n", grupos);
+    printf("| Pessoas aguardando: %-16d |\n", pessoas);
+    printf("+--------------------------------------+\n");
+}
+
+void liberarFila(Fila *fila)
+{
+    Grupo *atual;
+    Grupo *proximo;
+
+    if (fila == NULL)
+    {
         return;
     }
 
-    printf("\n+---------+-------+--------------------+");
-    printf("\n| POSICAO | SENHA | QUANTIDADE PESSOAS |");
-    printf("\n+---------+-------+--------------------+");
+    atual = fila->inicio;
 
-    Grupo *atual = f->inicio;
-    int pos = 1;
-
-    while (atual != NULL) {
-        printf("\n| %-7d | %-5d | %-18d |", pos, atual->senha, atual->qtd_pessoas);
-        atual = atual->prox;
-        pos++;
+    while (atual != NULL)
+    {
+        proximo = atual->prox;
+        free(atual);
+        atual = proximo;
     }
 
-    printf("\n+---------+-------+--------------------+");
-    printf("\n| Total: %d grupo(s) | %d pessoa(s) aguardando atendimento. |", f->total_grupos, f->total_pessoas);
-    printf("\n+-------------------------------------------------------------+\n");
-}
-
-
-// Libera toda a memoria dinamicamente alocada para os nos e a estrutura da fila.
-void liberar_fila(Fila *f) {
-    if (f == NULL) {
-        return;
-    }
-
-    Grupo *atual = f->inicio;
-    while (atual != NULL) {
-        Grupo *temp = atual;
-        atual = atual->prox;
-        free(temp);
-    }
-
-    f->inicio = NULL;
-    f->fim = NULL;
-    f->total_grupos = 0;
-    f->total_pessoas = 0;
-
-    free(f);
+    free(fila);
 }

@@ -1,15 +1,25 @@
-
-#include "prato.h"
-#include "mesa.h"
 #include "restaurante.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
-Restaurante *CriaRestaurante(void)
+static void liberarMatrizMesas(Mesa **mesas, int linhas)
 {
+    int i;
+
+    for (i = 0; i < linhas; i++)
+    {
+        free(mesas[i]);
+    }
+
+    free(mesas);
+}
+
+Restaurante *criarRestaurante(void)
+{
+    Restaurante *restaurante;
+    Mesa **mesas;
     int linhas, colunas, nMesa = 0;
+    int i, j;
+
+    int lugares = 4;
 
     do
     {
@@ -23,82 +33,82 @@ Restaurante *CriaRestaurante(void)
         scanf("%d", &colunas);
     } while (colunas <= 0);
 
-    Mesa **mesas = (Mesa **)malloc(sizeof(Mesa *) * linhas);
+    mesas = (Mesa **)malloc(sizeof(Mesa *) * linhas);
 
     if (mesas == NULL)
     {
+        printf("[ERRO] Falha na alocacao de memoria para as mesas.\n");
         return NULL;
     }
 
-    for (int i = 0; i < linhas; i++)
+    for (i = 0; i < linhas; i++)
     {
         mesas[i] = (Mesa *)malloc(sizeof(Mesa) * colunas);
 
         if (mesas[i] == NULL)
         {
-            for (int k = 0; k < i; k++)
-            {
-                free(mesas[k]);
-            }
-            free(mesas);
+            printf("[ERRO] Falha na alocacao de memoria para as mesas.\n");
+            liberarMatrizMesas(mesas, i);
             return NULL;
         }
     }
 
-    for (int i = 0; i < linhas; i++)
+    for (i = 0; i < linhas; i++)
     {
-        for (int j = 0; j < colunas; j++)
+        for (j = 0; j < colunas; j++)
         {
             nMesa++;
             mesas[i][j].numeroMesa = nMesa;
-            mesas[i][j].lugaresOcu = 0;
             mesas[i][j].livre = true;
+            mesas[i][j].lugaresOcu = 0;
             mesas[i][j].comanda = 0;
+            mesas[i][j].qtdPratos = lugares;
         }
     }
 
-    Restaurante *restauranteC = (Restaurante *)malloc(sizeof(Restaurante));
+    restaurante = (Restaurante *)malloc(sizeof(Restaurante));
 
-    if (restauranteC == NULL)
+    if (restaurante == NULL)
     {
-        for (int i = 0; i < linhas; i++)
-        {
-            free(mesas[i]);
-        }
-        free(mesas);
+        printf("[ERRO] Falha na alocacao de memoria para o restaurante.\n");
+        liberarMatrizMesas(mesas, linhas);
         return NULL;
     }
 
-    restauranteC->mesas = mesas;
+    restaurante->mesas = mesas;
+    restaurante->nLinhas = linhas;
+    restaurante->nColunas = colunas;
+    restaurante->nMesas = linhas * colunas;
+    restaurante->lugares = lugares;
+    restaurante->proxSenha = 0;
+    restaurante->proxComanda = 0;
+    restaurante->pilha = NULL;
+    restaurante->fila = NULL;
 
-    restauranteC->nLinhas = linhas;
-    restauranteC->nColunas = colunas;
+    restaurante->pilha = criarPilha();
+    restaurante->fila = criarFila();
 
-    restauranteC->lugares = 4;
+    if (restaurante->pilha == NULL || restaurante->fila == NULL)
+    {
+        liberarRestaurante(restaurante);
+        return NULL;
+    }
 
-    restauranteC->nMesas = linhas * colunas;
+    empilharPrato(restaurante->pilha, restaurante->nMesas * lugares);
 
-    restauranteC->proxSenha = 0;
-    restauranteC->proxComanda = 0;
-
-    int max = nMesa * 4;
-    restauranteC->pilha = CriarPilha(max);
-
-    return restauranteC;
+    return restaurante;
 }
 
-void liberaRestaurante(Restaurante *restaurante)
+void liberarRestaurante(Restaurante *restaurante)
 {
     if (restaurante == NULL)
     {
         return;
     }
 
-    for (int i = 0; i < restaurante->nLinhas; i++)
-    {
-        free(restaurante->mesas[i]);
-    }
+    liberarMatrizMesas(restaurante->mesas, restaurante->nLinhas);
+    liberarPilha(restaurante->pilha);
+    liberarFila(restaurante->fila);
 
-    free(restaurante->mesas);
     free(restaurante);
 }

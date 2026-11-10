@@ -1,87 +1,98 @@
 #include "prato.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
-Pilha *CriarPilha(maxPratos)
+Pilha *criarPilha(void)
 {
     Pilha *pilha = (Pilha *)malloc(sizeof(Pilha));
-    if (pilha != NULL)
+
+    if (pilha == NULL)
     {
-        pilha->topo = NULL;
-        pilha->qntd_pratos = 0;
-        pilha->max = maxPratos;
+        printf("[ERRO] Falha na alocacao de memoria para a pilha de pratos.\n");
+        return NULL;
     }
+
+    pilha->topo = NULL;
+    pilha->qtdPratos = 0;
+
     return pilha;
 }
 
-void EmpilharPrato(Pilha *pilha, int qntd)
+void empilharPrato(Pilha *pilha, int qtd)
 {
-    for (int i = 0; i < qntd; i++)
-    {
-        Prato *novo;
-        if (pilha == NULL)
-        {
-            printf("A pilha de pratos nao foi criada ainda");
-            return;
-        }
+    int i;
+    Prato *novo;
 
+    if (pilha == NULL)
+    {
+        printf("[ERRO] A pilha de pratos nao foi criada.\n");
+        return;
+    }
+
+    for (i = 0; i < qtd; i++)
+    {
         novo = (Prato *)malloc(sizeof(Prato));
 
         if (novo == NULL)
+        {
+            printf("[ERRO] Falha na alocacao de memoria para um prato.\n");
             return;
+        }
 
         novo->prox = pilha->topo;
         pilha->topo = novo;
-        pilha->qntd_pratos++;
+        pilha->qtdPratos++;
     }
 }
 
-void DesempilharPrato(Pilha *pilha, int qntd)
+int desempilharPrato(Pilha *pilha, int qtd)
 {
-    for (int i = 0; i < qntd; i++)
+    int removidos = 0;
+    Prato *aux;
+
+    if (pilha == NULL)
     {
-        Prato *aux;
-        if (pilha == NULL)
-        {
-            printf("A pilha de pratos nao foi criada ainda");
-            return;
-        }
+        printf("[ERRO] A pilha de pratos nao foi criada.\n");
+        return 0;
+    }
 
-        // mesma coisa aqui, nao sei se é so um de cada vez
-
-        if (pilha->topo == NULL)
-        {
-            printf("A pilha esta vazia.");
-            return;
-        }
+    while (removidos < qtd && pilha->topo != NULL)
+    {
         aux = pilha->topo;
         pilha->topo = aux->prox;
         free(aux);
-        pilha->qntd_pratos--;
+
+        pilha->qtdPratos--;
+        removidos++;
     }
+
+    return removidos;
 }
 
-void QuantidadePratos(Pilha *pilha)
+int quantidadePratos(Pilha *pilha)
 {
-    printf("%d", pilha->qntd_pratos);
+    if (pilha == NULL)
+    {
+        return 0;
+    }
+
+    return pilha->qtdPratos;
 }
 
-void ReporPratos(Pilha *pilha)
+void imprimirPilha(Pilha *pilha)
 {
-    EmpilharPrato(pilha, (pilha->max - pilha->qntd_pratos));
+    printf("\n+--------------------------------------+\n");
+    printf("| %-36s |\n", "PILHA DE PRATOS");
+    printf("+--------------------------------------+\n");
+    printf("| Pratos disponiveis: %-16d |\n", quantidadePratos(pilha));
+    printf("+--------------------------------------+\n");
 }
 
-void LiberarPratos(Pilha *pilha)
+void liberarPilha(Pilha *pilha)
 {
-    DesempilharPrato(pilha, pilha->qntd_pratos);
-}
+    if (pilha == NULL)
+    {
+        return;
+    }
 
-void LiberarPilha(Pilha *pilha)
-{
-    if (pilha->topo != NULL)
-        LiberarPratos(pilha);
-
+    desempilharPrato(pilha, pilha->qtdPratos);
     free(pilha);
 }

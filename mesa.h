@@ -5,16 +5,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define LUGARES_MESA 4
+
 typedef struct mesa
 {
-    int lugaresOcu;
-
     int numeroMesa;
-    int comanda;
     bool livre;
-
+    int lugaresOcu;   
+    int comanda;      
+    int qtdPratos;   
 } Mesa;
-
-void ocuparMesa(Restaurante *restaurante, Mesa *mesa, int pessoas, int comanda);
 
 #endif
