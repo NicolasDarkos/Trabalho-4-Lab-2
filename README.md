@@ -1,4 +1,4 @@
-TRABALHO 4 - GERENCIAMENTO DE RESTAURANTE (Laboratorio de Programacao II)
+TRABALHO 4 - PILHAS E FILAS
 
 Alunos: Bruno Bellinasso Brasil, Nícolas Focking da Rosa, Vinicius Morais Vilar
 
@@ -33,6 +33,3 @@ O QUE FOI FEITO
 DECISOES DE PROJETO
 - Cada mesa ocupada gera uma comanda propria (um grupo de 2 mesas tem 2 comandas).
 - Os pratos de uma mesa liberada voltam limpos para a pilha antes de a mesa ser arrumada.
-
-O QUE NAO FOI FEITO / LIMITACOES
-- Nao ha validacao contra digitacao de caracteres nao numericos nos scanf.
